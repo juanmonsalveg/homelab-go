@@ -1,0 +1,43 @@
+# Lint, unit tests and integration tests on every push to main and every pull request (README.md §11).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      # The same as compose.dev.yml. The password is local to this job.
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: dev
+          POSTGRES_DB: app_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@v5
+      - run: make setup
+      - run: make check
+      # 127.0.0.1, not localhost: on the runner, localhost can resolve to ::1, and the published port is IPv4.
+      - name: Integration tests
+        run: make test-integration TEST_DATABASE_URL=postgres://app:dev@127.0.0.1:5432/app_test

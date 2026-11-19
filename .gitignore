@@ -1,0 +1,12 @@
+# Test coverage
+coverage/
+*.coverprofile
+coverage.out
+
+# A go.work for working on an app and this module together lives next to both checkouts, never in
+# either one (README.md §11).
+go.work
+go.work.sum
+
+# OS / editor noise
+.DS_Store

@@ -1,0 +1,22 @@
+# The integration tests' database (README.md §11): `make db-up`. Local only. Port 5433, so it can run
+# next to an app's own dev database on 5432.
+name: homelab-go-dev
+
+services:
+  db:
+    image: postgres:18
+    environment:
+      # A superuser, local only. The tests only need a database they can create schemas in.
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: app_test
+    ports:
+      - "127.0.0.1:5433:5432"
+    tmpfs:
+      # Nothing here is worth keeping: each test makes its own schema and drops it.
+      - /var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "app", "-d", "app_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 30

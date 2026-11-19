@@ -1,0 +1,23 @@
+# Weekly update PRs. Nothing is auto-merged: CI has to pass, and someone reviews the diff.
+# An app gets at least the module versions this one requires, so a bump here is a bump in every app
+# (README.md §11). goose especially: an app's `make lint` fails until its goose CLI in mise.toml
+# matches the goose module.
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      go-modules:
+        patterns:
+          - "*"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns:
+          - "*"
